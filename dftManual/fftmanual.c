@@ -105,11 +105,33 @@ Complex **cria_matriz_exponenciais(int N)
     }
     return matriz;
 }
+/* windoSize <= vectorSize, hopSize [0, 0.99] */
+/* return a Complex matrix(x,y) where each y column has
+the x dimensional X fourier coefficients*/
+Complex **dft(double *vector, int vectorSize, int windowSize, float hopSize)
+{
+    /* validations and avoid errors */
+    if (hopSize > 1.0)
+    {
+        hopSize = 0.9;
+    }
+    if (windowSize > vectorSize)
+    {
+        windowSize = vectorSize;
+    }
 
-
-Complex **dft(double *vector, int vectorSize, int windowSize, float hopSize) {
     Complex **matrizExponenciais = cria_matriz_exponenciais(windowSize);
 
+    /*steps: 1 + (vectorSize - windowSize) / (1 - hopSize) * windowSize */
+    int steps = 1 + (int)((vectorSize - windowSize) / (int)((1 - hopSize) * windowSize));
+
+    int i;
+    for (i = 0; i < steps; i++)
+    {
+        int begin = i * windowSize;
+        int end = begin + windowSize;
+        /*memcpy*/
+    }
     return matrizExponenciais;
 }
 
@@ -202,10 +224,17 @@ void imprime_resultados(double *sinal, Complex *X, double *sinalReconstruido, in
 }
 int main()
 {
-    double *sinal = cria_sinal(TAMANHO);
-    Complex *X = dftMain(sinal, TAMANHO);
-    double *sinalReconstruido = idft(X, TAMANHO);
-    imprime_resultados(sinal, X, sinalReconstruido, TAMANHO);
+    int i;
+    int *vetor = (int *)malloc(TAMANHO * sizeof(int));
+    for(i = 0; i < TAMANHO; i ++){
+        vetor[i] = i;
+    }
+    int *copia;
+    memccpy(vetor, copia, TAMANHO);
+    // double *sinal = cria_sinal(TAMANHO);
+    // Complex *X = dftMain(sinal, TAMANHO);
+    // double *sinalReconstruido = idft(X, TAMANHO);
+    // imprime_resultados(sinal, X, sinalReconstruido, TAMANHO);
     // double **matriz = cria_matriz(3, 4);
     // preenche_matriz(matriz, 3, 4);
     /*imprime_matriz(matriz, 3, 4);*/

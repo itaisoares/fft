@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
 
 /**
 Algoritmo se baseou no livro Introduction to computer Music (F. Richard Moore)
@@ -71,7 +72,7 @@ void imprime_matriz(double **matriz, int linhas, int colunas)
 cria os valores das funcoes basicas
 da forma exp(-i*2*pi*n/N), cada coluna é um uma funcao k
 **/
-Complex **cria_matriz_exponenciais(int N)
+Complex **create_exponential_basis(int N)
 {
     int i, n, k;
     /*double pi2n = (M_PI * 2) / N;*/
@@ -95,9 +96,15 @@ Complex **cria_matriz_exponenciais(int N)
     }
 
     /*calculando os valores */
-    for (k = 0; k < N; k++)
+    for (i = 0; i < N; i++)
     {
-        for (n = 0; n < N; n++)
+        matriz[0][i].re = matriz[i][0].re = 1;
+        matriz[i][0].im = matriz[0][i].im = 0;
+    }
+    /* fazer consulta a tabela pra nao calcular o mesmo valor duas vezes*/
+    for (k = 1; k < N; k++)
+    {
+        for (n = 1; n < N; n++)
         {
             matriz[n][k].re = cos(pi2n * k * n);
             matriz[n][k].im = sin(pi2n * k * n);
@@ -105,12 +112,65 @@ Complex **cria_matriz_exponenciais(int N)
     }
     return matriz;
 }
+
+/* each row is a slice with binSize fourier constant */
+Complex **allocate_bin_matrix(int binSize, int slices)
+{
+    Complex **matrix;
+    int i;
+
+    matrix = (Complex **)malloc(slices * sizeof(Complex *));
+    if (matrix == NULL)
+    {
+        printf("Error alocating bin matrix");
+        exit(-1);
+    }
+    for (i = 0; i < slices; i++)
+    {
+        matrix[i] = (Complex *)malloc(binSize * sizeof(Complex));
+        if (matrix[i] == NULL)
+        {
+            printf("Error alocating bin matrix");
+            exit(-1);
+        }
+    }
+
+    // for (i = 0; i < slices; i++)
+    // {
+    //     for (j = 0; j < binSize; j++)
+    //     {
+    //         matrix[i][j].im = matrix[i][j].re = 0;
+    //     }
+    // }
+
+    return matrix;
+}
+
+Complex *dftMain(Complex *X, double *vectorSignal, Complex **exponentialBasis, int N)
+{
+    int k, n;
+
+    for (k = 0; k < N; k++)
+    {
+        X[k].re = X[k].im = 0;
+        for (n = 0; n < N; n++)
+        {
+            X[k].re += vectorSignal[n] * exponentialBasis[n][k].re;
+            X[k].im -= vectorSignal[n] * exponentialBasis[n][k].im;
+        }
+        X[k].re /= N;
+        X[k].im /= N;
+    }
+
+    return X;
+}
+
 /* windoSize <= vectorSize, hopSize [0, 0.99] */
 /* return a Complex matrix(x,y) where each y column has
 the x dimensional X fourier coefficients*/
-Complex **dft(double *vector, int vectorSize, int windowSize, float hopSize)
+Complex **dft(double *vectorSignal, int vectorSize, int windowSize, float hopSize)
 {
-    /* validations and avoid errors */
+    /* validations / avoid errors */
     if (hopSize > 1.0)
     {
         hopSize = 0.9;
@@ -120,27 +180,29 @@ Complex **dft(double *vector, int vectorSize, int windowSize, float hopSize)
         windowSize = vectorSize;
     }
 
-    Complex **matrizExponenciais = cria_matriz_exponenciais(windowSize);
+    Complex **exponentialBasis = create_exponential_basis(windowSize);
 
     /*steps: 1 + (vectorSize - windowSize) / (1 - hopSize) * windowSize */
     int steps = 1 + (int)((vectorSize - windowSize) / (int)((1 - hopSize) * windowSize));
 
+    Complex **X = allocate_bin_matrix(windowSize, steps);
     int i;
     for (i = 0; i < steps; i++)
     {
         int begin = i * windowSize;
-        int end = begin + windowSize;
-        /*memcpy*/
+        // int end = begin + windowSize;
+        double *subVector = &vectorSignal[begin];
+        X[i] = dftMain(X[i], subVector, exponentialBasis, windowSize);
     }
-    return matrizExponenciais;
+    return X;
 }
 
-Complex *dftMain(double *vetor, int N)
+Complex *dftMain2(double *vetor, int N)
 {
     int i, k, n;
     Complex *X;
 
-    Complex **matrizExponenciais = cria_matriz_exponenciais(N);
+    Complex **matrizExponenciais = create_exponential_basis(N);
 
     /* alocando o vetor */
     for (i = 0; i < N; i++)
@@ -171,7 +233,7 @@ Complex *dftMain(double *vetor, int N)
 double *idft(Complex *X, int N)
 {
     int i, n, k;
-    Complex **matrizExponenciais = cria_matriz_exponenciais(N);
+    Complex **matrizExponenciais = create_exponential_basis(N);
     double *sinal;
 
     sinal = (double *)malloc(N * sizeof(double));
@@ -199,7 +261,6 @@ double *cria_sinal(int N)
 {
     int i;
     double pi2n = (M_PI * 2) / N;
-    printf("aqui");
     double *sinal = (double *)malloc(N * sizeof(double));
     if (sinal == NULL)
     {
@@ -214,27 +275,35 @@ double *cria_sinal(int N)
     return sinal;
 }
 
-void imprime_resultados(double *sinal, Complex *X, double *sinalReconstruido, int N)
+void imprime_resultados(double *sinal, Complex **X, int N)
 {
     int i;
     for (i = 0; i < N; i++)
     {
-        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[i].re, X[i].im, sinalReconstruido[i]);
+        /*printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[0][i].re, X[0][i].im, sinalReconstruido[i]);*/
+        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f)\n", i, sinal[i], X[0][i].re, X[0][i].im);
     }
 }
-int main()
+
+void imprime_resultados2(double *sinal, Complex *X, double *sinal2, int N)
 {
     int i;
-    int *vetor = (int *)malloc(TAMANHO * sizeof(int));
-    for(i = 0; i < TAMANHO; i ++){
-        vetor[i] = i;
+    for (i = 0; i < N; i++)
+    {
+        /*printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[0][i].re, X[0][i].im, sinalReconstruido[i]);*/
+        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[i].re, X[i].im, sinal2[i]);
     }
-    int *copia;
-    memccpy(vetor, copia, TAMANHO);
-    // double *sinal = cria_sinal(TAMANHO);
-    // Complex *X = dftMain(sinal, TAMANHO);
-    // double *sinalReconstruido = idft(X, TAMANHO);
-    // imprime_resultados(sinal, X, sinalReconstruido, TAMANHO);
+}
+
+int main()
+{
+    double *sinal = cria_sinal(TAMANHO);
+    // Complex **X = dft(sinal, TAMANHO, TAMANHO, 0);
+    // imprime_resultados(sinal, X, TAMANHO);
+
+    Complex *X = dftMain2(sinal, TAMANHO);
+    double *sinalReconstruido = idft(X, TAMANHO);
+    imprime_resultados2(sinal, X, sinalReconstruido, TAMANHO);
     // double **matriz = cria_matriz(3, 4);
     // preenche_matriz(matriz, 3, 4);
     /*imprime_matriz(matriz, 3, 4);*/

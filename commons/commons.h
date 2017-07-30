@@ -8,7 +8,7 @@ typedef struct no
 } complex;
 typedef complex Complex;
 
-double *cria_sinal(int N);
+double *create_signal(int N);
 
 void imprime_resultados(double *sinal, Complex **X, int N);
 

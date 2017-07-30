@@ -45,7 +45,6 @@ Complex **create_exponential_basis(int N)
         matriz[0][i].re = matriz[i][0].re = 1;
         matriz[i][0].im = matriz[0][i].im = 0;
     }
-    /* fazer consulta a tabela pra nao calcular o mesmo valor duas vezes*/
     for (k = 1; k < N; k++)
     {
         for (n = 1; n < N; n++)
@@ -92,7 +91,28 @@ Complex **allocate_bin_matrix(int binSize, int slices, bool initialize)
     return matrix;
 }
 
-Complex *dftMain(Complex *X, double *vectorSignal, Complex **exponentialBasis, int N)
+Complex *allocate_bin_vector(int N, bool initialize)
+{
+    Complex *vector;
+    int i;
+
+    vector = (Complex *)malloc(N * sizeof(Complex));
+    if (vector == NULL)
+    {
+        printf("Error alocating bin vector");
+        exit(-1);
+    }
+    if (initialize == true)
+    {
+        for (i = 0; i < N; i++)
+        {
+            vector[i].im = vector[i].re = 0;
+        }
+    }
+
+    return vector;
+}
+Complex *dftCore(Complex *X, double *vectorSignal, Complex **exponentialBasis, int N)
 {
     int k, n;
 
@@ -114,7 +134,7 @@ Complex *dftMain(Complex *X, double *vectorSignal, Complex **exponentialBasis, i
 /* windoSize <= vectorSize, hopSize [0, 0.99] */
 /* return a Complex matrix(x,y) where each y column has
 the x dimensional X fourier coefficients*/
-Complex **dft(double *vectorSignal, int vectorSize, int windowSize, float hopSize)
+Complex **dftWindowed(double *vectorSignal, int vectorSize, int windowSize, float hopSize)
 {
     Complex **exponentialBasis, **X;
     int i, steps, begin;
@@ -140,40 +160,20 @@ Complex **dft(double *vectorSignal, int vectorSize, int windowSize, float hopSiz
     {
         begin = i * windowSize;
         subVector = &vectorSignal[begin];
-        X[i] = dftMain(X[i], subVector, exponentialBasis, windowSize);
+        X[i] = dftCore(X[i], subVector, exponentialBasis, windowSize);
     }
     return X;
 }
 
-Complex *dftMain2(double *vetor, int N)
+Complex *dft(double *vetor, int N)
 {
-    int i, k, n;
     Complex *X;
 
-    Complex **matrizExponenciais = create_exponential_basis(N);
+    Complex **exponentialBasis = create_exponential_basis(N);
 
-    /* alocando o vetor */
-    for (i = 0; i < N; i++)
-    {
-        X = (Complex *)malloc(N * sizeof(Complex));
-        if (X == NULL)
-        {
-            printf("ERRO! nao ha'memoria suficiente\n");
-            exit(-1);
-        }
-    }
+    X = allocate_bin_vector(N, true);
 
-    for (k = 0; k < N; k++)
-    {
-        X[k].re = X[k].im = 0;
-        for (n = 0; n < N; n++)
-        {
-            X[k].re += vetor[n] * matrizExponenciais[n][k].re;
-            X[k].im -= vetor[n] * matrizExponenciais[n][k].im;
-        }
-        X[k].re /= N;
-        X[k].im /= N;
-    }
+    X = dftCore(X, vetor, exponentialBasis, N);
 
     return X;
 }
@@ -205,53 +205,3 @@ double *idft(Complex *X, int N)
 
     return sinal;
 }
-
-/*double *cria_sinal(int N)
-{
-    int i;
-    double pi2n = (M_PI * 2) / N;
-    double *sinal = (double *)malloc(N * sizeof(double));
-    if (sinal == NULL)
-    {
-        printf("ERRO! nao ha'memoria suficiente\n");
-        exit(-1);
-    }
-
-    for (i = 0; i < N; i++)
-    {
-        sinal[i] = sin(pi2n * 1 * i) + 0.33 * sin(pi2n * 3 * i) + 0.2 * sin(pi2n * 5 * i);
-    }
-    return sinal;
-}
-
-void imprime_resultados(double *sinal, Complex **X, int N)
-{
-    int i;
-    for (i = 0; i < N; i++)
-    {
-        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[0][i].re, X[0][i].im, sinalReconstruido[i]);
-        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f)\n", i, sinal[i], X[0][i].re, X[0][i].im);
-    }
-}
-
-void imprime_resultados2(double *sinal, Complex *X, double *sinal2, int N)
-{
-    int i;
-    for (i = 0; i < N; i++)
-    {
-        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[0][i].re, X[0][i].im, sinalReconstruido[i]);
-        printf("[%2d] x1 = %6.3f, X = (%6.3f, %6.3f), x2 = %6.3f\n", i, sinal[i], X[i].re, X[i].im, sinal2[i]);
-    }
-}
-
-void plotaSinal(double *sinal, int N, char *titulo)
-{
-    int i;
-    FILE *gnuplot = popen("gnuplot", "w");
-    fprinf(gnuplot, "set title '%s'", titulo);
-    fprintf(gnuplot, "plot '-' with lines\n");
-    for (i = 0; i < N; i++)
-        fprintf(gnuplot, "%d %g\n", i, sinal[i]);
-    fprintf(gnuplot, "e\n");
-    fflush(gnuplot);
-}*/

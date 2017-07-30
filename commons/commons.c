@@ -13,7 +13,7 @@ typedef struct no
 } complex;
 typedef complex Complex;
 
-double *cria_sinal(int N)
+double *create_signal(int N)
 {
     int i;
     double pi2n = (M_PI * 2) / N;
@@ -26,7 +26,7 @@ double *cria_sinal(int N)
 
     for (i = 0; i < N; i++)
     {
-        sinal[i] = sin(pi2n * 200 * i) + 0.33 * sin(pi2n * 300 * i) + 0.2 * sin(pi2n * 500 * i);
+        sinal[i] = sin(pi2n * 2 * i) + 0.33 * sin(pi2n * 5 * i) + 0.2 * sin(pi2n * 8 * i);
     }
     return sinal;
 }

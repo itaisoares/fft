@@ -4,9 +4,6 @@
 #include <stddef.h>
 #include <unistd.h>
 #include "./../commons/commons.h"
-#define true 1
-#define false 0
-typedef int bool;
 /**
 Algoritmo se baseou no livro Introduction to computer Music (F. Richard Moore)
 na página 66-68. Os valores das funções são previamente calculados neste caso.
@@ -91,27 +88,6 @@ Complex **allocate_bin_matrix(int binSize, int slices, bool initialize)
     return matrix;
 }
 
-Complex *allocate_bin_vector(int N, bool initialize)
-{
-    Complex *vector;
-    int i;
-
-    vector = (Complex *)malloc(N * sizeof(Complex));
-    if (vector == NULL)
-    {
-        printf("Error alocating bin vector");
-        exit(-1);
-    }
-    if (initialize == true)
-    {
-        for (i = 0; i < N; i++)
-        {
-            vector[i].im = vector[i].re = 0;
-        }
-    }
-
-    return vector;
-}
 Complex *dftCore(Complex *X, double *vectorSignal, Complex **exponentialBasis, int N)
 {
     int k, n;

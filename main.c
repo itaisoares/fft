@@ -1,5 +1,6 @@
 #include "commons/commons.h"
 #include "dftManual/dftmanual.h"
+#include "fftRecursive/fftRecursive.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,6 +8,32 @@
 #include <math.h>
 
 Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
+{
+    int i;
+    clock_t start, end;
+    Complex **X;
+    double total;
+
+    X = (Complex **)malloc(signalQty * sizeof(Complex));
+    if (X == NULL)
+    {
+        printf("Memory allocation error\n");
+        exit(-1);
+    }
+    printf("DFT Times:\n");
+    for (i = 0; i < signalQty; i++)
+    {
+        start = clock();
+        X[i] = dft(signals[i], signalSizes[i]);
+        end = clock();
+        total = ((double)(end - start)) / CLOCKS_PER_SEC;
+        printf("%5d - %.3fs\n", signalSizes[i], total);
+    }
+
+    return X;
+}
+
+Complex **runDFTWindowedTests(double **signals, int *signalSizes, int signalQty)
 {
     int i;
     clock_t start, end;
@@ -79,6 +106,9 @@ int main(int argc, char *argv[])
     int *signalSizes;
     int TEMP = 0;
 
+    double *signal;
+    Complex *X2;
+
     if (argc == 3)
     {
         signalQty = atoi(argv[1]);
@@ -91,6 +121,16 @@ int main(int argc, char *argv[])
 
     X = runDFTTests(signals, signalSizes, signalQty);
 
+    signal = create_signal(64);
+    X2 = fftRecursive(signal, 64);
+
+    sinalReconstruido = idft(X2, 64);
+    /*imprime_resultados2(sinal, X, sinalReconstruido, N);*/
+    plotaSinal(signal, 64, "sinal original");
+    dftCart = pol_to_cart(X2, 64);
+    plotaSinal(dftCart, 64, "DFT");
+    plotaSinal(sinalReconstruido, 64, "sinal reconstruido");
+
     /*printf("Criando sinal de N %d\n", N);
     sinal = cria_sinal(N);
     //Complex **X = dft(sinal, N, N, 0);
@@ -102,12 +142,12 @@ int main(int argc, char *argv[])
     total = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("DFT time %.3f\n", total);*/
 
-    sinalReconstruido = idft(X[TEMP], signalSizes[TEMP]);
-    /*imprime_resultados2(sinal, X, sinalReconstruido, N);*/
+    /*sinalReconstruido = idft(X[TEMP], signalSizes[TEMP]);
+    
     plotaSinal(signals[TEMP], signalSizes[TEMP], "sinal original");
     dftCart = pol_to_cart(X[TEMP], signalSizes[TEMP]);
     plotaSinal(dftCart, signalSizes[TEMP], "DFT");
-    plotaSinal(sinalReconstruido, signalSizes[TEMP], "sinal reconstruido");
+    plotaSinal(sinalReconstruido, signalSizes[TEMP], "sinal reconstruido");*/
     pause();
 
     return 0;

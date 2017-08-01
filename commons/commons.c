@@ -101,6 +101,30 @@ double *pol_to_cart(Complex *X, int N)
     return vector;
 }
 
+/************** FOURIER COMMONS *******/
+
+Complex *allocate_bin_vector(int N, bool initialize)
+{
+    Complex *vector;
+    int i;
+
+    vector = (Complex *)malloc(N * sizeof(Complex));
+    if (vector == NULL)
+    {
+        printf("Error alocating bin vector");
+        exit(-1);
+    }
+    if (initialize == true)
+    {
+        for (i = 0; i < N; i++)
+        {
+            vector[i].im = vector[i].re = 0;
+        }
+    }
+
+    return vector;
+}
+
 /************* NAO USADO POR ENQUANTO ***************/
 
 /*funcao utilizada para alocar a matriz*/

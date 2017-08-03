@@ -43,10 +43,10 @@ Complex *fftCore(double *signal, int N)
     double pi2n = (8 * atan(1)) / N;
     X = allocate_bin_vector(N, true);
 
-    if (N == 1)
+    if (N == 2)
     {
-        X[0].re = signal[0];
-        X[0].im = 0;
+        X[0].re = signal[0] + signal[1];
+        X[1].re = signal[0] - signal[1];
         return X;
     }
     else

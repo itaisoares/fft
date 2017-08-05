@@ -15,7 +15,7 @@ Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
     double total;
     double *sinalReconstruido;
 
-    X = (Complex **)malloc(signalQty * sizeof(Complex));
+    X = (Complex **)malloc(signalQty * sizeof(Complex *));
     if (X == NULL)
     {
         printf("Memory allocation error\n");
@@ -43,7 +43,7 @@ Complex **runFFTTests(double **signals, int *signalSizes, int signalQty)
     double total;
     double *sinalReconstruido;
 
-    X = (Complex **)malloc(signalQty * sizeof(Complex));
+    X = (Complex **)malloc(signalQty * sizeof(Complex *));
     if (X == NULL)
     {
         printf("Memory allocation error\n");

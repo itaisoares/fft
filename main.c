@@ -80,7 +80,7 @@ double **create_signals(int *signalSizes, int sizeQty)
 
 int *create_signal_sizes(int sizeQty)
 {
-    int base = 64;
+    int base = 16;
     int *signalSizes;
     int i;
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     Complex **X;
     int signalQty = 2;
     int *signalSizes;
-    int TEMP = 0;
+    int TEMP = 64;
 
     double *signal;
     Complex *X2;
@@ -121,15 +121,15 @@ int main(int argc, char *argv[])
 
     X = runDFTTests(signals, signalSizes, signalQty);
 
-    signal = create_signal(64);
-    X2 = fftRecursive(signal, 64);
+    signal = create_signal(TEMP);
+    X2 = fftRecursive(signal, TEMP);
 
-    sinalReconstruido = idft(X2, 64);
+    sinalReconstruido = idft(X2, TEMP);
     /*imprime_resultados2(sinal, X, sinalReconstruido, N);*/
-    plotaSinal(signal, 64, "sinal original");
-    dftCart = pol_to_cart(X2, 64);
-    plotaSinal(dftCart, 64, "DFT");
-    plotaSinal(sinalReconstruido, 64, "sinal reconstruido");
+    plotaSinal(signal, TEMP, "sinal original");
+    dftCart = pol_to_cart(X2, TEMP);
+    plotaSinal(dftCart, TEMP, "DFT");
+    plotaSinal(sinalReconstruido, TEMP, "sinal reconstruido");
 
     /*printf("Criando sinal de N %d\n", N);
     sinal = cria_sinal(N);

@@ -1,0 +1,5 @@
+main.o
+main
+commons.o
+dftmanual.o
+fftrecursive.o

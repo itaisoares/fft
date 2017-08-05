@@ -44,7 +44,7 @@ void freeVectors(double **signal)
 Complex *fftCore(double *signal, int N)
 {
     double **splittedSignal;
-    int k, i;
+    int k;
     Complex *X, *XEven, *XOdd;
     /*double pi2n = (M_PI * 2) / N;*/
     double pi2n = (8 * atan(1)) / N;
@@ -64,10 +64,10 @@ Complex *fftCore(double *signal, int N)
     }
     /*X_k = XEven_k + e^{-i2pik/N} * XOdd_k */
     /*X_k = XEven_{k-N/2} - e^{-i2pi(k-N/2)/N} * XOdd_{k-N/2} */
-    for (i = 0; i < N; i++)
+    for (k = 0; k < N; k++)
     {
-        X[i].re = XEven[i % (N / 2)].re + XOdd[i % (N / 2)].re * cos(pi2n * i) + XOdd[i % (N / 2)].im * sin(pi2n * i);
-        X[i].im = XEven[i % (N / 2)].im + XOdd[i % (N / 2)].im * cos(pi2n * i) - XOdd[i % (N / 2)].re * sin(pi2n * i);
+        X[k].re = XEven[k % (N / 2)].re + XOdd[k % (N / 2)].re * cos(pi2n * k) + XOdd[k % (N / 2)].im * sin(pi2n * k);
+        X[k].im = XEven[k % (N / 2)].im + XOdd[k % (N / 2)].im * cos(pi2n * k) - XOdd[k % (N / 2)].re * sin(pi2n * k);
     }
 
     XEven = XOdd = NULL;
@@ -77,5 +77,14 @@ Complex *fftCore(double *signal, int N)
 
 Complex *fftRecursive(double *signal, int N)
 {
-    return fftCore(signal, N);
+    int i;
+    Complex *X;
+
+    X = fftCore(signal, N);
+    for (i = 0; i < N; i++)
+    {
+        X[i].im /= N;
+        X[i].re /= N;
+    }
+    return X;
 }

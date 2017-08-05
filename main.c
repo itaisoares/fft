@@ -13,6 +13,7 @@ Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
     clock_t start, end;
     Complex **X;
     double total;
+    double *sinalReconstruido;
 
     X = (Complex **)malloc(signalQty * sizeof(Complex));
     if (X == NULL)
@@ -26,6 +27,7 @@ Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
         start = clock();
         X[i] = dft(signals[i], signalSizes[i]);
         end = clock();
+        free(X[i]);
         total = ((double)(end - start)) / CLOCKS_PER_SEC;
         printf("%5d - %.3fs\n", signalSizes[i], total);
     }
@@ -33,6 +35,35 @@ Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
     return X;
 }
 
+Complex **runFFTTests(double **signals, int *signalSizes, int signalQty)
+{
+    int i;
+    clock_t start, end;
+    Complex **X;
+    double total;
+    double *sinalReconstruido;
+
+    X = (Complex **)malloc(signalQty * sizeof(Complex));
+    if (X == NULL)
+    {
+        printf("Memory allocation error\n");
+        exit(-1);
+    }
+    printf("FFT Recursive Times:\n");
+    for (i = 0; i < signalQty; i++)
+    {
+        start = clock();
+        X[i] = fftRecursive(signals[i], signalSizes[i]);
+        end = clock();
+        free(X[i]);
+        total = ((double)(end - start)) / CLOCKS_PER_SEC;
+        printf("%5d - %.3fs\n", signalSizes[i], total);
+    }
+
+    return X;
+}
+
+/*not tested*/
 Complex **runDFTWindowedTests(double **signals, int *signalSizes, int signalQty)
 {
     int i;
@@ -50,7 +81,7 @@ Complex **runDFTWindowedTests(double **signals, int *signalSizes, int signalQty)
     for (i = 0; i < signalQty; i++)
     {
         start = clock();
-        X[i] = dft(signals[i], signalSizes[i]);
+        X[i] = fftRecursive(signals[i], signalSizes[i]);
         end = clock();
         total = ((double)(end - start)) / CLOCKS_PER_SEC;
         printf("%5d - %.3fs\n", signalSizes[i], total);
@@ -109,7 +140,7 @@ int main(int argc, char *argv[])
     double *signal;
     Complex *X2;
 
-    if (argc == 3)
+    if (argc == 2)
     {
         signalQty = atoi(argv[1]);
         TEMP = atoi(argv[2]);
@@ -121,15 +152,17 @@ int main(int argc, char *argv[])
 
     X = runDFTTests(signals, signalSizes, signalQty);
 
-    signal = create_signal(TEMP);
-    X2 = fftRecursive(signal, TEMP);
+    X = runFFTTests(signals, signalSizes, signalQty);
 
-    sinalReconstruido = idft(X2, TEMP);
+    // signal = create_signal(TEMP);
+    // X2 = fftRecursive(signal, TEMP);
+
+    // sinalReconstruido = idft(X2, TEMP);
     /*imprime_resultados2(sinal, X, sinalReconstruido, N);*/
-    plotaSinal(signal, TEMP, "sinal original");
-    dftCart = pol_to_cart(X2, TEMP);
-    plotaSinal(dftCart, TEMP, "DFT");
-    plotaSinal(sinalReconstruido, TEMP, "sinal reconstruido");
+    // plotaSinal(signal, TEMP, "sinal original");
+    // dftCart = pol_to_cart(X2, TEMP);
+    // plotaSinal(dftCart, TEMP, "DFT");
+    // plotaSinal(sinalReconstruido, TEMP, "sinal reconstruido");
 
     /*printf("Criando sinal de N %d\n", N);
     sinal = cria_sinal(N);

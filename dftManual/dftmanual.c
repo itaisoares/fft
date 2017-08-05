@@ -53,6 +53,16 @@ Complex **create_exponential_basis(int N)
     return matriz;
 }
 
+void deallocate_exponential_basis(Complex **basis, int N)
+{
+    int i;
+
+    for (i = 0; i < N; i++)
+    {
+        free(basis[i]);
+    }
+    free(basis);
+}
 /* each row is a slice with binSize fourier constant */
 Complex **allocate_bin_matrix(int binSize, int slices, bool initialize)
 {
@@ -150,6 +160,8 @@ Complex *dft(double *vetor, int N)
     X = allocate_bin_vector(N, true);
 
     X = dftCore(X, vetor, exponentialBasis, N);
+
+    deallocate_exponential_basis(exponentialBasis, N);
 
     return X;
 }

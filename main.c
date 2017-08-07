@@ -6,14 +6,27 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
+#define BASE_TAMANHO_SINAL 32
 
-Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
+void printTimes(double *times, int signalQty, int nTestRounds, char *title)
 {
-    int i;
+    int i, signalSize;
+
+    printf("%s", title);
+    for (i = 0; i < signalQty; i++)
+    {
+        signalSize = (int)BASE_TAMANHO_SINAL * pow(2, i);
+        printf("%5d - %.5fs\n", signalSize, (double)times[i] / nTestRounds);
+    }
+}
+
+Complex **runDFTTests(double **signals, int *signalSizes, int signalQty, int nTestRounds)
+{
+    int i, j;
     clock_t start, end;
     Complex **X;
     double total;
-    double *sinalReconstruido;
+    double *sinalReconstruido, *times;
 
     X = (Complex **)malloc(signalQty * sizeof(Complex *));
     if (X == NULL)
@@ -21,27 +34,34 @@ Complex **runDFTTests(double **signals, int *signalSizes, int signalQty)
         printf("Memory allocation error\n");
         exit(-1);
     }
-    printf("DFT Times:\n");
-    for (i = 0; i < signalQty; i++)
+
+    times = allocate_vector(signalQty, true);
+
+    for (j = 0; j < nTestRounds; j++)
     {
-        start = clock();
-        X[i] = dft(signals[i], signalSizes[i]);
-        end = clock();
-        free(X[i]);
-        total = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("%5d - %.3fs\n", signalSizes[i], total);
+        for (i = 0; i < signalQty; i++)
+        {
+            start = clock();
+            X[i] = dft(signals[i], signalSizes[i]);
+            end = clock();
+            free(X[i]);
+            total = ((double)(end - start)) / CLOCKS_PER_SEC;
+            times[i] += total;
+        }
     }
+    printTimes(times, signalQty, nTestRounds, "DFT Times:\n");
+    free(times);
 
     return X;
 }
 
-Complex **runFFTTests(double **signals, int *signalSizes, int signalQty)
+Complex **runFFTTests(double **signals, int *signalSizes, int signalQty, int nTestRounds)
 {
-    int i;
+    int i, j;
     clock_t start, end;
     Complex **X;
     double total;
-    double *sinalReconstruido;
+    double *sinalReconstruido, *times, *fftPlot, *idft2;
 
     X = (Complex **)malloc(signalQty * sizeof(Complex *));
     if (X == NULL)
@@ -49,43 +69,22 @@ Complex **runFFTTests(double **signals, int *signalSizes, int signalQty)
         printf("Memory allocation error\n");
         exit(-1);
     }
-    printf("FFT Recursive Times:\n");
-    for (i = 0; i < signalQty; i++)
+    times = allocate_vector(signalQty, true);
+    for (j = 0; j < nTestRounds; j++)
     {
-        start = clock();
-        X[i] = fftRecursive(signals[i], signalSizes[i]);
-        end = clock();
-        free(X[i]);
-        total = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("%5d - %.3fs\n", signalSizes[i], total);
+        for (i = 0; i < signalQty; i++)
+        {
+            start = clock();
+            X[i] = fftRecursive(signals[i], signalSizes[i]);
+            end = clock();
+            free(X[i]);
+            total = ((double)(end - start)) / CLOCKS_PER_SEC;
+            times[i] += total;
+        }
     }
 
-    return X;
-}
-
-/*not tested*/
-Complex **runDFTWindowedTests(double **signals, int *signalSizes, int signalQty)
-{
-    int i;
-    clock_t start, end;
-    Complex **X;
-    double total;
-
-    X = (Complex **)malloc(signalQty * sizeof(Complex));
-    if (X == NULL)
-    {
-        printf("Memory allocation error\n");
-        exit(-1);
-    }
-    printf("DFT Times:\n");
-    for (i = 0; i < signalQty; i++)
-    {
-        start = clock();
-        X[i] = fftRecursive(signals[i], signalSizes[i]);
-        end = clock();
-        total = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("%5d - %.3fs\n", signalSizes[i], total);
-    }
+    printTimes(times, signalQty, nTestRounds, "FFT Recursive Times:\n");
+    free(times);
 
     return X;
 }
@@ -111,7 +110,6 @@ double **create_signals(int *signalSizes, int sizeQty)
 
 int *create_signal_sizes(int sizeQty)
 {
-    int base = 16;
     int *signalSizes;
     int i;
 
@@ -123,36 +121,56 @@ int *create_signal_sizes(int sizeQty)
     }
     for (i = 0; i < sizeQty; i++)
     {
-        signalSizes[i] = base * pow(2, i);
+        signalSizes[i] = BASE_TAMANHO_SINAL * pow(2, i);
     }
 
     return signalSizes;
 }
+
+void freeMemory(double **signal, int signalQty)
+{
+    int i;
+
+    for (i = 0; i < signalQty; i++)
+    {
+        free(signal[i]);
+    }
+    free(signal);
+}
+
 int main(int argc, char *argv[])
 {
     double **signals;
     double *sinalReconstruido, *dftCart;
     Complex **X;
-    int signalQty = 2;
+    int signalQty = 5;
+    int nTestRounds = 1;
     int *signalSizes;
-    int TEMP = 64;
 
-    double *signal;
-    Complex *X2;
+    // int TEMP = 64;
+    // double *signal;
+    // Complex *X2;
 
-    if (argc == 2)
+    if (argc == 3)
     {
         signalQty = atoi(argv[1]);
-        TEMP = atoi(argv[2]);
+        nTestRounds = atoi(argv[2]);
+        printf("%d signals and %d test times\n", signalQty, nTestRounds);
+    }
+    else
+    {
+        printf("Use: ./main #signals #tests. Using default numbers: %d signals and %d test times\n", signalQty, nTestRounds);
     }
 
     signalSizes = create_signal_sizes(signalQty);
 
     signals = create_signals(signalSizes, signalQty);
 
-    X = runDFTTests(signals, signalSizes, signalQty);
+    // X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    X = runFFTTests(signals, signalSizes, signalQty);
+    X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
+
+    freeMemory(signals, signalQty);
 
     // signal = create_signal(TEMP);
     // X2 = fftRecursive(signal, TEMP);

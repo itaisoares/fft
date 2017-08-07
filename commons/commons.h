@@ -13,6 +13,8 @@ typedef complex Complex;
 
 double *create_signal(int N);
 
+double *allocate_vector(int N, bool initialize);
+
 void imprime_resultados(double *sinal, Complex **X, int N);
 
 void imprime_resultados2(double *sinal, Complex *X, double *sinal2, int N);

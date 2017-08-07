@@ -1,6 +1,7 @@
 SRC=main.c
 CC=gcc
-CFLAGS=-O3 -Wall -ansi -pedantic
+#-Wall
+CFLAGS=-O3 -ansi -pedantic 
 all: clean main
 commons.o: ./commons/commons.c
 	$(CC) -o commons.o -c ./commons/commons.c $(CFLAGS)

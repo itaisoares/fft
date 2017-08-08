@@ -134,15 +134,15 @@ Complex *ifftCore(Complex *X, int N)
 
     if (N == 2)
     {
-        signal[0].re = X[0].re - X[1].re;
-        signal[0].im = X[0].im - X[1].im;
-        signal[1].re = X[0].re + X[1].re;
-        signal[1].im = X[0].im + X[1].im;
-        return X;
+        signal[0].re = X[0].re + X[1].re;
+        signal[0].im = X[0].im + X[1].im;
+        signal[1].re = X[0].re - X[1].re;
+        signal[1].im = X[0].im - X[1].im;
+        return signal;
     }
     else
     {
-        splittedBins = splitComplex(signal, N);
+        splittedBins = splitComplex(X, N);
         signalEven = ifftCore(splittedBins[EVEN], N / 2);
         signalOdd = ifftCore(splittedBins[ODD], N / 2);
     }
@@ -150,8 +150,8 @@ Complex *ifftCore(Complex *X, int N)
     /*X_k = XEven_{k-N/2} - e^{-i2pi(k-N/2)/N} * XOdd_{k-N/2} */
     for (k = 0; k < N; k++)
     {
-        signal[k].re = signalEven[k % (N / 2)].re - (signalOdd[k % (N / 2)].re * cos(pi2n * k) + signalOdd[k % (N / 2)].im * sin(pi2n * k));
-        signal[k].im = signalEven[k % (N / 2)].im - (signalOdd[k % (N / 2)].im * cos(pi2n * k) - signalOdd[k % (N / 2)].re * sin(pi2n * k));
+        signal[k].re = signalEven[k % (N / 2)].re + signalOdd[k % (N / 2)].re * cos(pi2n * k) - signalOdd[k % (N / 2)].im * sin(pi2n * k);
+        signal[k].im = signalEven[k % (N / 2)].im + signalOdd[k % (N / 2)].im * cos(pi2n * k) + signalOdd[k % (N / 2)].re * sin(pi2n * k);
     }
     /* verificar erro */
     // for (k = 0; k < N / 2; k++)
@@ -168,7 +168,7 @@ Complex *ifftCore(Complex *X, int N)
 
     signalEven = signalOdd = NULL;
     freeComplexVectors(splittedBins);
-    return X;
+    return signal;
 }
 
 Complex *fftRecursive(double *signal, int N)

@@ -116,11 +116,11 @@ Complex **runFFTW3Tests(double **signals, int *signalSizes, int signalQty, int n
             start = clock();
             X[i] = fftw3(signals[i], signalSizes[i]);
             end = clock();
-            // sinalReconstruido = idft(X[i], signalSizes[i]);
+            sinalReconstruido = ifftw3(X[i], signalSizes[i]);
             // plotaSinal(signals[i], signalSizes[i], "sinal");
             // plotaSinal(sinalReconstruido, signalSizes[i], "reconstruido");
             // pause();
-            free(X[i]);
+            // free(X[i]);
             total = ((double)(end - start)) / CLOCKS_PER_SEC;
             times[i] += total;
         }
@@ -211,9 +211,9 @@ int main(int argc, char *argv[])
 
     // X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    // X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
+    X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    X = runFFTW3Tests(signals, signalSizes, signalQty, nTestRounds);
+    // X = runFFTW3Tests(signals, signalSizes, signalQty, nTestRounds);
 
     freeMemory(signals, signalQty);
 

@@ -4,4 +4,6 @@
 
 Complex *fftRecursive(double *signal, int N);
 
+double *ifftRecursive(Complex *X, int N);
+
 #endif

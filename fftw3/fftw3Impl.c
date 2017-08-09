@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fftw3.h>
-// #include <math.h>
-// #include <stddef.h>
-// #include <unistd.h>
 #include "./../commons/commons.h"
 #define EVEN 0
 #define ODD 1

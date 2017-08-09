@@ -106,17 +106,17 @@ Complex *fftCore(double *signal, int N)
         X[k].im = XEven[k % (N / 2)].im + XOdd[k % (N / 2)].im * cos(pi2n * k) - XOdd[k % (N / 2)].re * sin(pi2n * k);
     }
     /* verificar erro */
-    // for (k = 0; k < N / 2; k++)
-    // {
-    //     X[k].re = XEven[k].re + cos(pi2n * k) * XOdd[k].re + sin(pi2n * k) * XOdd[k].im;
-    //     X[k].im = XEven[k].im + cos(pi2n * k) * XOdd[k].im - sin(pi2n * k) * XOdd[k].re;
-    // }
-    // for (k = N / 2; k < N - 1; k++)
-    // {
-    //     int n2 = N / 2;
-    //     X[k].re = XEven[k % n2].re - (cos(pi2n * (k % n2)) * XOdd[k % n2].re + sin(pi2n * (k % n2)) * XOdd[k % n2].im);
-    //     X[k].im = XEven[k % n2].im - (cos(pi2n * (k % n2)) * XOdd[k % n2].im - sin(pi2n * (k % n2)) * XOdd[k % n2].re);
-    // }
+    /*for (k = 0; k < N / 2; k++)
+    {
+        X[k].re = XEven[k].re + cos(pi2n * k) * XOdd[k].re + sin(pi2n * k) * XOdd[k].im;
+        X[k].im = XEven[k].im + cos(pi2n * k) * XOdd[k].im - sin(pi2n * k) * XOdd[k].re;
+    }
+    for (k = N / 2; k < N - 1; k++)
+    {
+        int n2 = N / 2;
+        X[k].re = XEven[k % n2].re - (cos(pi2n * (k % n2)) * XOdd[k % n2].re + sin(pi2n * (k % n2)) * XOdd[k % n2].im);
+        X[k].im = XEven[k % n2].im - (cos(pi2n * (k % n2)) * XOdd[k % n2].im - sin(pi2n * (k % n2)) * XOdd[k % n2].re);
+    }*/
 
     XEven = XOdd = NULL;
     freeVectors(splittedSignal);
@@ -154,17 +154,17 @@ Complex *ifftCore(Complex *X, int N)
         signal[k].im = signalEven[k % (N / 2)].im + signalOdd[k % (N / 2)].im * cos(pi2n * k) + signalOdd[k % (N / 2)].re * sin(pi2n * k);
     }
     /* verificar erro */
-    // for (k = 0; k < N / 2; k++)
-    // {
-    //     X[k].re = XEven[k].re + cos(pi2n * k) * XOdd[k].re + sin(pi2n * k) * XOdd[k].im;
-    //     X[k].im = XEven[k].im + cos(pi2n * k) * XOdd[k].im - sin(pi2n * k) * XOdd[k].re;
-    // }
-    // for (k = N / 2; k < N - 1; k++)
-    // {
-    //     int n2 = N / 2;
-    //     X[k].re = XEven[k % n2].re - (cos(pi2n * (k % n2)) * XOdd[k % n2].re + sin(pi2n * (k % n2)) * XOdd[k % n2].im);
-    //     X[k].im = XEven[k % n2].im - (cos(pi2n * (k % n2)) * XOdd[k % n2].im - sin(pi2n * (k % n2)) * XOdd[k % n2].re);
-    // }
+    /*for (k = 0; k < N / 2; k++)
+    {
+        X[k].re = XEven[k].re + cos(pi2n * k) * XOdd[k].re + sin(pi2n * k) * XOdd[k].im;
+        X[k].im = XEven[k].im + cos(pi2n * k) * XOdd[k].im - sin(pi2n * k) * XOdd[k].re;
+    }
+    for (k = N / 2; k < N - 1; k++)
+    {
+        int n2 = N / 2;
+        X[k].re = XEven[k % n2].re - (cos(pi2n * (k % n2)) * XOdd[k % n2].re + sin(pi2n * (k % n2)) * XOdd[k % n2].im);
+        X[k].im = XEven[k % n2].im - (cos(pi2n * (k % n2)) * XOdd[k % n2].im - sin(pi2n * (k % n2)) * XOdd[k % n2].re);
+    }*/
 
     signalEven = signalOdd = NULL;
     freeComplexVectors(splittedBins);

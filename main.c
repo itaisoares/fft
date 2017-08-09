@@ -78,10 +78,10 @@ Complex **runFFTTests(double **signals, int *signalSizes, int signalQty, int nTe
             start = clock();
             X[i] = fftRecursive(signals[i], signalSizes[i]);
             end = clock();
-            // sinalReconstruido = ifftRecursive(X[i], signalSizes[i]);
-            // plotaSinal(signals[i], signalSizes[i], "sinal");
-            // plotaSinal(sinalReconstruido, signalSizes[i], "reconstruido");
-            // pause();
+            /*sinalReconstruido = ifftRecursive(X[i], signalSizes[i]);
+            plotaSinal(signals[i], signalSizes[i], "sinal");
+            plotaSinal(sinalReconstruido, signalSizes[i], "reconstruido");
+            pause();*/
             free(X[i]);
             total = ((double)(end - start)) / CLOCKS_PER_SEC;
             times[i] += total;
@@ -117,10 +117,10 @@ Complex **runFFTW3Tests(double **signals, int *signalSizes, int signalQty, int n
             X[i] = fftw3(signals[i], signalSizes[i]);
             end = clock();
             sinalReconstruido = ifftw3(X[i], signalSizes[i]);
-            // plotaSinal(signals[i], signalSizes[i], "sinal");
-            // plotaSinal(sinalReconstruido, signalSizes[i], "reconstruido");
-            // pause();
-            // free(X[i]);
+            /*plotaSinal(signals[i], signalSizes[i], "sinal");
+            plotaSinal(sinalReconstruido, signalSizes[i], "reconstruido");
+            pause();
+            free(X[i]);*/
             total = ((double)(end - start)) / CLOCKS_PER_SEC;
             times[i] += total;
         }
@@ -205,9 +205,9 @@ int main(int argc, char *argv[])
 
     signals = create_signals(signalSizes, signalQty);
 
-    // X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
+    /*X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    // X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
+    X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);*/
 
     X = runFFTW3Tests(signals, signalSizes, signalQty, nTestRounds);
 

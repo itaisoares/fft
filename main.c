@@ -205,9 +205,9 @@ int main(int argc, char *argv[])
 
     signals = create_signals(signalSizes, signalQty);
 
-    /*X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
+    X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);*/
+    X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
 
     X = runFFTW3Tests(signals, signalSizes, signalQty, nTestRounds);
 

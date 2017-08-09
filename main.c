@@ -186,13 +186,9 @@ int main(int argc, char *argv[])
     double **signals;
     double *sinalReconstruido, *dftCart;
     Complex **X;
-    int signalQty = 1;
+    int signalQty = 5;
     int nTestRounds = 1;
     int *signalSizes;
-
-    // int TEMP = 64;
-    // double *signal;
-    // Complex *X2;
 
     if (argc == 3)
     {
@@ -211,9 +207,9 @@ int main(int argc, char *argv[])
 
     // X = runDFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
+    // X = runFFTTests(signals, signalSizes, signalQty, nTestRounds);
 
-    // X = runFFTW3Tests(signals, signalSizes, signalQty, nTestRounds);
+    X = runFFTW3Tests(signals, signalSizes, signalQty, nTestRounds);
 
     freeMemory(signals, signalQty);
 

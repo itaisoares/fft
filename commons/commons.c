@@ -16,7 +16,7 @@ typedef complex Complex;
 double *create_signal(int N)
 {
     int i;
-    double pi2n = (M_PI * 2) / N;
+    double pi2n = (8 * atan(1)) / N;
     double *sinal = (double *)malloc(N * sizeof(double));
     if (sinal == NULL)
     {
